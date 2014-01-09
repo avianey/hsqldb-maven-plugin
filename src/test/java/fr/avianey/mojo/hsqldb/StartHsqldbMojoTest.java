@@ -22,9 +22,9 @@ public class StartHsqldbMojoTest extends AbstractHsqldbMojoTest {
     public void test() throws Exception {
         startMojo.execute();
         Assert.assertFalse(startMojo.skip);
-        Assert.assertFalse(isHsqldbUp(startMojo));
+        Assert.assertTrue(isRunning(startMojo));
         stopMojo.execute();
-        Assert.assertTrue(isHsqldbUp(startMojo));
+        Assert.assertTrue(isClosed(startMojo));
     }
 
 }
