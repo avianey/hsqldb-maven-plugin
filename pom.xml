@@ -9,7 +9,7 @@
     <packaging>maven-plugin</packaging>
 
     <name>Maven HSQLDB Plugin</name>
-    <description>Run/Start and Stop HSQLDB in server Mode directly from Maven.</description>
+    <description>Start and Stop HSQLDB in server Mode directly from Maven.</description>
 
     <url>https://github.com/avianey/maven-hsqldb-plugin</url>
 
@@ -20,16 +20,49 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    
+    <scm>
+        <url>https://github.com/avianey/hsqldb-maven-plugin</url>
+        <developerConnection>scm:git:git@github.com/avianey/hsqldb-maven-plugin.git</developerConnection>
+        <connection>scm:git:git://github.com/avianey/hsqldb-maven-plugin.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+    
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>http://github.com/avianey/hsqldb-maven-plugin/issues</url>
+    </issueManagement>
 
+    <developers>
+        <developer>
+            <id>avianey</id>
+            <name>Antoine Vianey</name>
+        </developer>
+    </developers>
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <version.derby>10.10.1.1</version.derby>
-        <version.maven>3.0.5</version.maven>
+        <hsqldb.version>2.3.1</hsqldb.version>
+        <maven.version>3.0.5</maven.version>
     </properties>
 
     <build>
 
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.1</version>
+                    <configuration>
+                        <mavenExecutorId>forked-path</mavenExecutorId>
+                        <useReleaseProfile>false</useReleaseProfile>
+                        <arguments>${arguments} -Psonatype-oss-release</arguments>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -41,6 +74,20 @@
                     <source>1.6</source>
                     <target>1.6</target>
                 </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -63,7 +110,7 @@
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>3.2</version>
                 <configuration>
-                    <!-- see http://jira.codehaus.org/browse/MNG-5346 -->
+                    <goalPrefix>hsqldb</goalPrefix>
                     <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
                 </configuration>
                 <executions>
@@ -99,12 +146,8 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.4.1</version>
-
                 <configuration>
-                    <arguments>-Pgpg</arguments>
-                    <releaseProfiles>gpg</releaseProfiles>
-                    <mavenExecutorId>forked-path</mavenExecutorId>
+                    <pushChanges>false</pushChanges>
                 </configuration>
             </plugin>
 
@@ -116,34 +159,34 @@
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>2.3.1</version>
+            <version>${hsqldb.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-artifact</artifactId>
-            <version>${version.maven}</version>
+            <version>${maven.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-compat</artifactId>
-            <version>${version.maven}</version>
+            <version>${maven.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
-            <version>${version.maven}</version>
+            <version>${maven.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-model</artifactId>
-            <version>${version.maven}</version>
+            <version>${maven.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
-            <version>${version.maven}</version>
+            <version>${maven.version}</version>
         </dependency>
 
         <dependency>
@@ -159,19 +202,54 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.maven.plugin-testing</groupId>
-            <artifactId>maven-plugin-testing-harness</artifactId>
-            <version>2.1</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
-
+    
+    
+    <!-- 
+        mvn clean release:clean -s settings.xml
+        mvn release:prepare -s settings.xml -Darguments=...
+        manual push
+        mvn release:perform -s settings.xml -Darguments=...
+        -->
+    <profiles>
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.4</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <distributionManagement>
+                <repository>
+                    <id>sonatype-nexus-staging</id>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
 
 </project>
