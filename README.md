@@ -69,6 +69,20 @@ The parent pom defines two modules :
 - **web** : a war to be deployed in a container
 - **tests** : integration tests to be run against the deploy war
 
+```
++ parent
+|-- pom.xml
+|
+|-- + web
+|   |-- pom.xml
+|   |-- src/main/resources/META-INF/persistence.xml
+|   |-- src/main/resources/META-INF/resources.xml
+|
+|-- + tests
+|   |-- pom.xml
+|   |-- src/test/java/SimpleTest.java
+```
+
 The **tests** module is activated with the *tests* profile with its own database configuration.
 
 pom.xml :
