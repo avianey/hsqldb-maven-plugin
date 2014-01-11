@@ -201,15 +201,16 @@ resources.xml :
 
 ### Test project
 
-The test project will :
-1- start the HSQLDB server
-2- start the container (tomee) with which is responsible of deploying the **war**
-3- test the deployed **war** application
-   1- connect to the HSQLDB server
-   2- setup the required data in the database
-   3- run remote tests against the deployed application
-4- stop the container (tomee)
-5- stop the HSQLDB server
+The test project will :  
+
+1. start the HSQLDB server
+2. start the container (tomee) with which is responsible of deploying the **war**
+3. test the deployed **war** application
+   1. connect to the HSQLDB server
+   2. setup the required data in the database
+   3. run remote tests against the deployed application
+4. stop the container (tomee)
+5. stop the HSQLDB server
 
 pom.xml :
 ```xml
