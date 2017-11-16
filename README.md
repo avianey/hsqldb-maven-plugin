@@ -57,7 +57,7 @@ Use this plugin when you want to run **integration-test** with [maven-failsafe-p
 2. **integration-test** :
    1. setup your test data in HSQLDB for use by the deployed application
    2. test the application (JAX-RS services, JAX-WS services)
-3. **pre-integration-test** :
+3. **post-integration-test** :
    1. stop the container
    2. stop the HSQLDB Server
 
